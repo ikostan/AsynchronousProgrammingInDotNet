@@ -21,35 +21,73 @@ namespace MyLogin
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            
-            try
+           Login();
+           //DeadLock();
+        }
+
+        /// <summary>
+        /// Disable login button and show/hide notification
+        /// </summary>
+        private void ToggleLogInButton()
+        {
+            if (LoginButton.IsEnabled)
             {
                 //Disable login button and show notification
                 LoginButton.IsEnabled = false;
                 System.Diagnostics.Debug.WriteLine("LOGIN button disabled");
                 BusyIndicator.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                //Enable LOGIN button
+                Thread.Sleep(800);
+                BusyIndicator.Visibility = Visibility.Hidden;
+                LoginButton.IsEnabled = true;
+                //LoginButton.Content = "LOGIN";
+            }
+        }
+
+        /// <summary>
+        /// Deadlock sample
+        /// </summary>
+        private void DeadLock()
+        {
+            System.Diagnostics.Debug.WriteLine("Dead-Lock -> start");
+
+            var task = Task.Delay(1).ContinueWith((t) => {
+                Dispatcher.Invoke(() => {});
+            });
+
+            //Cause to a deadlock since the UI is blocked by WAIT.
+            //Therefore it is imposible to invoke UI -> DEADLOCK !!!
+            task.Wait();
+        }
+
+
+        private async void Login()
+        {
+            try
+            {
+                //Disable login button and show notification
+                ToggleLogInButton();
 
                 //Do login 
                 var result = await AsyncLogin();
                 System.Diagnostics.Debug.WriteLine(result);
-                LoginButton.Content = result;          
+                LoginButton.Content = result;
             }
             catch (Exception ex)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
                 System.Diagnostics.Debug.WriteLine(ex.Message);
                 LoginButton.Content = ex.Message;
             }
             finally
             {
-                //Enable LOGIN button
-                Thread.Sleep(800);
-                BusyIndicator.Visibility = Visibility.Hidden;
-                //LoginButton.Content = "LOGIN";
-                LoginButton.IsEnabled = true;
-            }   
+                ToggleLogInButton();
+            }
         }
 
         /// <summary>
@@ -66,7 +104,7 @@ namespace MyLogin
             try
             {
                 //Task
-                var result = await Task.Run(() =>
+                var result = Task.Run(() =>
                 {
                     //SimulateException();
 
@@ -77,7 +115,7 @@ namespace MyLogin
                     return "Login Successful!";
                 });
 
-                return result;
+                return await result;
             }
             catch (Exception)
             {
@@ -107,7 +145,7 @@ namespace MyLogin
         public void LoginTask()
         {
             //Process user login task
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
         }
     }
 }
