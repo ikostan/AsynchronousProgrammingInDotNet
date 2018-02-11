@@ -16,8 +16,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Button x:Name="RssButton" Height="30" Click="RssButton_Click">DOWNLOAD RSS</Button>
-            <controls:BusyIndicator x:Name="BusyIndicator" Visibility="Hidden" Margin="200 0 0 0"
-                                    Width="20" Height="20" />
+            <controls:BusyIndicator x:Name="BusyIndicator" Visibility="Hidden" Margin="200 0 0 0" Width="20" Height="20"/>
             <Button x:Name="CounterButton" Height="30" Grid.Row="1" Click="CounterButton_Click">INCREASE COUNTER</Button>
             
             <TextBlock x:Name="CounterText" Grid.Row="2" Height="30">Counter:</TextBlock>

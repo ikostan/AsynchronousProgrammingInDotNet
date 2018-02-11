@@ -17,25 +17,30 @@ namespace ReliableWPFApplication
 
         private void RssButton_Click(object sender, RoutedEventArgs e)
         {
-            BusyIndicator.Visibility = Visibility.Visible;
-
-            RssButton.IsEnabled = false;
-
             var client = new WebClient();
-            
-            client.DownloadStringAsync(new Uri("http://www.filipekberg.se/rss/"));
 
-            client.DownloadStringCompleted += Client_DownloadStringCompleted;
+            //var data = client.DownloadString("http://www.filipekberg.se/rss/"); // Old code
+            //Thread.Sleep(10000); // Old code
+            //RssText.Text = data; // Old code
+
+            //New Code
+            RssButton.IsEnabled = false;
+            BusyIndicator.Visibility = Visibility.Visible;
+            Uri uri = new Uri("http://www.filipekberg.se/rss/");
+            client.DownloadStringAsync(uri);
+            client.DownloadStringCompleted += DataDownloadCompleted;          
         }
 
-        private void Client_DownloadStringCompleted(object sender, 
-            DownloadStringCompletedEventArgs e)
+        /// <summary>
+        /// DownloadStringCompleted  event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DataDownloadCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
-            RssText.Text = e.Result;
-
             BusyIndicator.Visibility = Visibility.Hidden;
-
-            RssButton.IsEnabled = true;
+            RssButton.IsEnabled = false;
+            RssText.Text = e.Result.ToString();
         }
 
         private void CounterButton_Click(object sender, RoutedEventArgs e)
