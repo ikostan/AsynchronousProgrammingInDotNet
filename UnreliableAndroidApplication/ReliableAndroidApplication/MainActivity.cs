@@ -11,17 +11,21 @@ namespace ReliableAndroidApplication
     public class MainActivity : Activity
     {
         private int count = 1;
-        private ProgressDialog progress;
+        private Button rssButton;
+        private ProgressDialog progressDialog;
+        private TextView rssTextView;
+
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
-            progress = new ProgressDialog(this);
-
             SetContentView(Resource.Layout.Main);
 
             var counterButton = FindViewById<Button>(Resource.Id.CounterButton);
-            var rssButton = FindViewById<Button>(Resource.Id.RssButton);
+            rssButton = FindViewById<Button>(Resource.Id.RssButton);
+            rssTextView = FindViewById<TextView>(Resource.Id.Rss);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.Hide();
 
             counterButton.Click += delegate {
                 var counterTextView = FindViewById<TextView>(Resource.Id.CounterText);
@@ -29,25 +33,33 @@ namespace ReliableAndroidApplication
             };
 
             rssButton.Click += delegate {
-
-                progress.SetMessage("Please wait, downloading RSS...");
-                progress.SetCancelable(false);
-                progress.Show();
-
                 var client = new WebClient();
-                client.DownloadStringAsync(new Uri("http://www.filipekberg.se/rss/"));
-                client.DownloadStringCompleted += Client_DownloadStringCompleted;
+
+                //Old code
+                /*
+                var data = client.DownloadString("http://www.filipekberg.se/rss/");
+                Thread.Sleep(10000);
+                var rssTextView = FindViewById<TextView>(Resource.Id.Rss);
+                rssTextView.Text = data;
+                */
+                progressDialog.Show();
+                rssButton.Enabled = false;
+                Uri uri = new Uri("http://www.filipekberg.se/rss/");
+                client.DownloadStringAsync(uri);
+                client.DownloadStringCompleted += StringDownloadCompleted;
             };
         }
 
-        private void Client_DownloadStringCompleted(object sender, 
-            DownloadStringCompletedEventArgs e)
-        {
-            var rssTextView = FindViewById<TextView>(Resource.Id.Rss);
-
-            rssTextView.Text = e.Result;
-
-            progress.Hide();
+        /// <summary>
+        /// DownloadStringCompleted event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StringDownloadCompleted(object sender, DownloadStringCompletedEventArgs e)
+        {           
+            rssTextView.Text = e.Result.ToString();
+            progressDialog.Hide();
+            rssButton.Enabled = true;
         }
     }
 }
